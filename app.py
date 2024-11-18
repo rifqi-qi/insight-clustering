@@ -5,22 +5,31 @@ import matplotlib.pyplot as plt
 from adjustText import adjust_text
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
+from io import BytesIO
+import requests
+import zipfile
 
 # Fungsi utama untuk Streamlit
 def main():
     st.title("Peta Hasil Clustering Produksi Ikan di Asia Tenggara")
 
-    # Baca file Excel dari repository GitHub
-    # Ganti URL di bawah ini dengan path file Excel Anda di GitHub
-    github_url = "https://raw.githubusercontent.com/username/repository/branch/path/to/clustered_production_data.xlsx"
+    # URL file Excel dan Shapefile dari repository GitHub
+    # Ganti URL di bawah ini dengan tautan ke file GitHub Anda
+    excel_url = "https://raw.githubusercontent.com/username/repository/branch/path/to/clustered_production_data.xlsx"
+    shapefile_url = "https://github.com/username/repository/raw/branch/path/to/shapefile.zip"
 
     try:
-        clustered_df = pd.read_excel(github_url)
+        # Baca file Excel dari GitHub
+        st.text("Memuat data clustering...")
+        clustered_df = pd.read_excel(excel_url)
         st.success("File Excel berhasil dimuat dari GitHub!")
 
-        # Baca shapefile dunia
+        # Unduh dan baca shapefile dari GitHub
         st.text("Memuat data peta...")
-        world = gpd.read_file('/content/drive/My Drive/big data/maps/ne_110m_admin_0_countries.shp')
+        response = requests.get(shapefile_url)
+        with zipfile.ZipFile(BytesIO(response.content)) as z:
+            z.extractall("shapefile")
+        world = gpd.read_file("shapefile/ne_110m_admin_0_countries.shp")
 
         # Filter negara-negara Asia Tenggara
         sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
