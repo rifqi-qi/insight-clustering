@@ -1,99 +1,54 @@
 import streamlit as st
-import geopandas as gpd
 import pandas as pd
-import matplotlib.pyplot as plt
-from adjustText import adjust_text
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib_scalebar.scalebar import ScaleBar
-from io import BytesIO
-import requests
-import zipfile
+import folium
+from folium.plugins import MarkerCluster
+from streamlit_folium import folium_static
 
-# Fungsi utama untuk Streamlit
-def main():
-    st.title("Peta Hasil Clustering Produksi Ikan di Asia Tenggara")
+# Judul aplikasi
+st.title("Peta Clustering Produksi Ikan di Asia Tenggara")
 
-    # URL file CSV dan Shapefile dari repository GitHub
-    # Ganti URL di bawah ini dengan tautan ke file GitHub Anda
-    csv_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/main/clustered_production_data.csv"
-    shapefile_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/main/maps-20241118T142623Z-001.zip"
+# Upload file CSV
+uploaded_file = st.file_uploader("Unggah file data clustering (CSV)", type="csv")
+if uploaded_file is not None:
+    # Membaca data dari file yang diunggah
+    clustered_df = pd.read_csv(uploaded_file)
 
-    try:
-        # Baca file CSV dari GitHub
-        st.text("Memuat data clustering...")
-        clustered_df = pd.read_csv(csv_url)
-        st.success("File CSV berhasil dimuat dari GitHub!")
+    # Data Koordinat Negara Asia Tenggara
+    coordinates = {
+        'Indonesia': [-0.7893, 113.9213],
+        'Malaysia': [4.2105, 101.9758],
+        'Thailand': [15.8700, 100.9925],
+        'Philippines': [12.8797, 121.7740],
+        'Vietnam': [14.0583, 108.2772],
+        'Singapore': [1.3521, 103.8198],
+        'Myanmar': [21.9162, 95.9560],
+        'Cambodia': [12.5657, 104.9910],
+        'Laos': [19.8563, 102.4955],
+        'Brunei': [4.5353, 114.7277],
+        'Timor-Leste': [-8.8742, 125.7275]
+    }
 
-        # Unduh dan baca shapefile dari GitHub
-        st.text("Memuat data peta...")
-        response = requests.get(shapefile_url)
-        with zipfile.ZipFile(BytesIO(response.content)) as z:
-            z.extractall("maps-20241118T142623Z-001.zip")
-        world = gpd.read_file("maps-20241118T142623Z-001/ne_110m_admin_0_countries.shp")
+    # Menambahkan koordinat ke DataFrame
+    clustered_df['Latitude'] = clustered_df['Entity'].map(lambda x: coordinates[x][0] if x in coordinates else None)
+    clustered_df['Longitude'] = clustered_df['Entity'].map(lambda x: coordinates[x][1] if x in coordinates else None)
 
-        # Filter negara-negara Asia Tenggara
-        sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
-                         'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
-        sea_map = world[world['NAME'].isin(sea_countries)]
+    # Filter data dengan koordinat yang valid
+    valid_data = clustered_df.dropna(subset=['Latitude', 'Longitude'])
 
-        # Gabungkan hasil clustering dengan data peta
-        sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
-                                left_on='NAME', right_on='Entity', how='left')
+    # Membuat peta
+    seasia_map = folium.Map(location=[5.0, 110.0], zoom_start=5)
 
-        # Reproyeksi GeoDataFrame ke proyeksi EPSG:3395 untuk akurasi centroid
-        sea_map = sea_map.to_crs(epsg=3395)
-        centroids = sea_map.geometry.centroid
+    # Menambahkan marker untuk setiap negara
+    marker_cluster = MarkerCluster().add_to(seasia_map)
+    for _, row in valid_data.iterrows():
+        folium.Marker(
+            location=[row['Latitude'], row['Longitude']],
+            popup=f"Negara: {row['Entity']}<br>Cluster: {row['Cluster']}",
+            icon=folium.Icon(color='blue' if row['Cluster'] == 0 else 'red')
+        ).add_to(marker_cluster)
 
-        # Plot peta
-        fig, ax = plt.subplots(1, 1, figsize=(14, 10), constrained_layout=True)
-
-        # Tambahkan divider untuk legenda yang rapi
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.1)
-
-        # Warna dan batas peta yang lebih soft
-        sea_map.boundary.plot(ax=ax, linewidth=0, edgecolor="black")
-        sea_map.plot(column='Cluster', ax=ax, legend=True, cmap='Spectral', edgecolor='darkgray',
-                     legend_kwds={'shrink': 0.8}, cax=cax)
-
-        # List untuk menyimpan objek teks anotasi
-        texts = []
-
-        # Anotasi centroid dengan style yang lebih informatif
-        for centroid, label, total_prod, growth_rate, cluster in zip(centroids,
-                                                                     sea_map['NAME'],
-                                                                     sea_map['total_production'],
-                                                                     sea_map['growth_rate'],
-                                                                     sea_map['Cluster']):
-            x, y = centroid.x, centroid.y
-            annotation_text = (f"{label}\nCluster: {cluster}\nTotal: {total_prod:.0f}\nGrowth: {growth_rate:.2f}%")
-            texts.append(ax.text(x, y, annotation_text, fontsize=9, ha='center',
-                                 bbox=dict(facecolor='white', edgecolor='darkgray', boxstyle="round,pad=0.3", alpha=0.8)))
-
-        # Gunakan adjust_text
-        adjust_text(texts, ax=ax, arrowprops=dict(arrowstyle='-', color='gray', lw=0.5))
-
-        # Tambahkan titik centroid untuk setiap negara
-        ax.scatter(centroids.x, centroids.y, color='green', s=50, label='Centroid')
-
-        # Tambahkan skala peta
-        scalebar = ScaleBar(1, units="m", location='lower left', length_fraction=0.2)
-        ax.add_artist(scalebar)
-
-        # Set judul di level fig agar tetap di tengah
-        fig.suptitle('Peta Hasil Clustering Produksi Ikan di Asia Tenggara', fontsize=15, fontweight='bold')
-
-        # Set label sumbu dan grid
-        ax.set_xlabel('Longitude')
-        ax.set_ylabel('Latitude')
-        ax.grid(True, linestyle='--', alpha=1)
-
-        # Tampilkan peta di Streamlit
-        st.pyplot(fig)
-
-    except Exception as e:
-        st.error(f"Terjadi kesalahan: {e}")
-
-# Jalankan aplikasi
-if __name__ == "__main__":
-    main()
+    # Menampilkan peta di Streamlit
+    st.subheader("Peta Clustering")
+    folium_static(seasia_map)
+else:
+    st.warning("Unggah file CSV untuk menampilkan peta.")
