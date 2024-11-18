@@ -9,8 +9,8 @@ from matplotlib_scalebar.scalebar import ScaleBar
 def load_data():
     """Load data from GitHub URLs"""
     # Replace with your actual GitHub raw file URLs
-    world_url = 'https://raw.githubusercontent.com/yourusername/yourrepo/main/ne_110m_admin_0_countries.shp'
-    clustered_data_url = 'https://raw.githubusercontent.com/yourusername/yourrepo/main/clustered_production_data.csv'
+    world_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/ne_110m_admin_0_countries.shp'
+    clustered_data_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/clustered_production_data.csv'
     
     # Load world map
     world = gpd.read_file(world_url)
