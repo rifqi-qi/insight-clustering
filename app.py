@@ -13,16 +13,16 @@ import zipfile
 def main():
     st.title("Peta Hasil Clustering Produksi Ikan di Asia Tenggara")
 
-    # URL file Excel dan Shapefile dari repository GitHub
+    # URL file CSV dan Shapefile dari repository GitHub
     # Ganti URL di bawah ini dengan tautan ke file GitHub Anda
-    excel_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/clustered_production_data.csv"
-    shapefile_url = "https://github.com/rifqi-qi/insight-clustering/blob/main/ne_110m_admin_0_countries.shp"
+    csv_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/main/clustered_production_data.csv"
+    shapefile_url = "https://github.com/rifqi-qi/insight-clustering/raw/main/ne_110m_admin_0_countries.zip"
 
     try:
-        # Baca file Excel dari GitHub
+        # Baca file CSV dari GitHub
         st.text("Memuat data clustering...")
-        clustered_df = pd.read_excel(excel_url)
-        st.success("File Excel berhasil dimuat dari GitHub!")
+        clustered_df = pd.read_csv(csv_url)
+        st.success("File CSV berhasil dimuat dari GitHub!")
 
         # Unduh dan baca shapefile dari GitHub
         st.text("Memuat data peta...")
