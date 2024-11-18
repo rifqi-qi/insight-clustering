@@ -16,7 +16,7 @@ def main():
     # URL file CSV dan Shapefile dari repository GitHub
     # Ganti URL di bawah ini dengan tautan ke file GitHub Anda
     csv_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/main/clustered_production_data.csv"
-    shapefile_url = "https://github.com/rifqi-qi/insight-clustering/raw/main/maps-20241118T142623Z-001.zip"
+    shapefile_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/main/maps-20241118T142623Z-001.zip"
 
     try:
         # Baca file CSV dari GitHub
