@@ -2,7 +2,7 @@ streamlit
 geopandas
 pandas
 matplotlib
-adjust-text
+adjustText
 matplotlib-scalebar
 fiona
 pyproj
