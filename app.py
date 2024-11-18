@@ -29,7 +29,7 @@ def main():
         response = requests.get(shapefile_url)
         with zipfile.ZipFile(BytesIO(response.content)) as z:
             z.extractall("shapefile")
-        world = gpd.read_file("shapefile/ne_110m_admin_0_countries.shp")
+        world = gpd.read_file("ne_110m_admin_0_countries.shp")
 
         # Filter negara-negara Asia Tenggara
         sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
