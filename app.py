@@ -28,8 +28,8 @@ def main():
         st.text("Memuat data peta...")
         response = requests.get(shapefile_url)
         with zipfile.ZipFile(BytesIO(response.content)) as z:
-            z.extractall("shapefile")
-        world = gpd.read_file("ne_110m_admin_0_countries.shp")
+            z.extractall("maps-20241118T142623Z-001.zip")
+        world = gpd.read_file("maps-20241118T142623Z-001/ne_110m_admin_0_countries.shp")
 
         # Filter negara-negara Asia Tenggara
         sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
