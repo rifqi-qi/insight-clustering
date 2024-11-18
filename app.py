@@ -15,7 +15,7 @@ def main():
 
     # URL file Excel dan Shapefile dari repository GitHub
     # Ganti URL di bawah ini dengan tautan ke file GitHub Anda
-    excel_url = "https://raw.githubusercontent.com/username/repository/branch/path/to/clustered_production_data.xlsx"
+    excel_url = "https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/clustered_production_data.csv"
     shapefile_url = "https://github.com/username/repository/raw/branch/path/to/shapefile.zip"
 
     try:
