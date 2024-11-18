@@ -1,4 +1,9 @@
 streamlit
+geopandas
 pandas
-folium
-streamlit-folium
+matplotlib
+adjust-text
+matplotlib-scalebar
+fiona
+pyproj
+shapely
