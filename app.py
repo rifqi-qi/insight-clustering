@@ -2,8 +2,8 @@ import streamlit as st
 import geopandas as gpd
 import pandas as pd
 import folium
-from folium.plugins import MarkerCluster
 from branca.colormap import linear
+from folium.plugins import MarkerCluster
 
 def load_data():
     """Load data from GitHub URLs"""
@@ -20,7 +20,7 @@ def load_data():
     return world, clustered_df
 
 def create_interactive_map(world, clustered_df):
-    """Create interactive map with Folium and color by cluster"""
+    """Create interactive map with Folium and color countries by cluster"""
     # Filter Southeast Asian countries
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
                      'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
@@ -54,7 +54,7 @@ def create_interactive_map(world, clustered_df):
         )
         folium.GeoJson(
             data=row['geometry'].__geo_interface__,
-            style_function=lambda _: {
+            style_function=lambda feature, color=color: {
                 "fillColor": color,
                 "color": "black",
                 "weight": 0.5,
