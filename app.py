@@ -2,7 +2,8 @@ import streamlit as st
 import geopandas as gpd
 import pandas as pd
 import folium
-from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster
+from branca.colormap import linear
 
 def load_data():
     """Load data from GitHub URLs"""
@@ -19,46 +20,55 @@ def load_data():
     return world, clustered_df
 
 def create_interactive_map(world, clustered_df):
-    """Create an interactive map using folium"""
+    """Create interactive map with Folium"""
     # Filter Southeast Asian countries
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
                      'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
-    sea_map = world[world['NAME'].isin(sea_countries)]
+    world['is_sea'] = world['NAME'].isin(sea_countries)
+    sea_map = world.copy()
 
     # Merge clustering data with map
     sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
                             left_on='NAME', right_on='Entity', how='left')
+    
+    # Initialize Folium map
+    m = folium.Map(location=[5, 115], zoom_start=4, tiles="CartoDB positron")
 
-    # Create Folium map centered on Southeast Asia
-    m = folium.Map(location=[10, 105], zoom_start=4, tiles='cartodbpositron')
-
-    # Add countries with clusters
+    # Add countries to map
     for _, row in sea_map.iterrows():
-        color = {0: 'blue', 1: 'green'}.get(row['Cluster'], 'gray')  # Color by cluster
+        color = "lightgray" if pd.isna(row['Cluster']) else linear.Spectral_11.colors[int(row['Cluster'])]
+        tooltip_text = (
+            f"<b>{row['NAME']}</b><br>"
+            f"Cluster: {row['Cluster'] if not pd.isna(row['Cluster']) else 'N/A'}<br>"
+            f"Total Production: {row['total_production'] if not pd.isna(row['total_production']) else 'N/A'}<br>"
+            f"Growth Rate: {row['growth_rate']:.2f}%<br>"
+        )
         folium.GeoJson(
-            row['geometry'],
-            style_function=lambda x, color=color: {'fillColor': color, 'color': 'black', 'weight': 0.5, 'fillOpacity': 0.6},
-            tooltip=folium.GeoJsonTooltip(
-                fields=['NAME', 'Cluster', 'total_production', 'growth_rate'],
-                aliases=['Country', 'Cluster', 'Total Production', 'Growth Rate (%)'],
-                localize=True
-            )
+            data=row['geometry'].__geo_interface__,
+            style_function=lambda _: {
+                "fillColor": color,
+                "color": "black",
+                "weight": 0.5,
+                "fillOpacity": 0.7 if not pd.isna(row['Cluster']) else 0.2,
+            },
+            tooltip=tooltip_text,
         ).add_to(m)
-
+    
     return m
 
 def main():
-    st.title('Interactive Southeast Asia Production Clustering Map')
-    
+    st.title('Southeast Asia Production Clustering Map')
+
     # Load data
     try:
         world, clustered_df = load_data()
         
         # Create map
-        folium_map = create_interactive_map(world, clustered_df)
+        m = create_interactive_map(world, clustered_df)
         
         # Display map in Streamlit
-        st_folium(folium_map, width=800, height=600)
+        from streamlit_folium import st_folium
+        st_folium(m, width=800, height=600)
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
