@@ -20,7 +20,7 @@ def load_data():
     return world, clustered_df
 
 def create_interactive_map(world, clustered_df):
-    """Create interactive map with Folium"""
+    """Create interactive map with Folium and color by cluster"""
     # Filter Southeast Asian countries
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
                      'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
@@ -31,12 +31,21 @@ def create_interactive_map(world, clustered_df):
     sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
                             left_on='NAME', right_on='Entity', how='left')
     
+    # Define color map for clusters
+    clusters = sea_map['Cluster'].dropna().unique()
+    cluster_colormap = linear.Spectral_11.scale(min(clusters), max(clusters))
+    cluster_colormap.caption = "Cluster Color Map"
+
     # Initialize Folium map
     m = folium.Map(location=[5, 115], zoom_start=4, tiles="CartoDB positron")
 
     # Add countries to map
     for _, row in sea_map.iterrows():
-        color = "lightgray" if pd.isna(row['Cluster']) else linear.Spectral_11.colors[int(row['Cluster'])]
+        color = (
+            cluster_colormap(row['Cluster']) 
+            if not pd.isna(row['Cluster']) 
+            else "lightgray"
+        )
         tooltip_text = (
             f"<b>{row['NAME']}</b><br>"
             f"Cluster: {row['Cluster'] if not pd.isna(row['Cluster']) else 'N/A'}<br>"
@@ -54,6 +63,9 @@ def create_interactive_map(world, clustered_df):
             tooltip=tooltip_text,
         ).add_to(m)
     
+    # Add color map legend
+    m.add_child(cluster_colormap)
+
     return m
 
 def main():
