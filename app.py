@@ -7,21 +7,16 @@ from folium.plugins import Fullscreen
 
 def load_data():
     """Load data from GitHub URLs"""
-    # Replace with your actual GitHub raw file URLs
     world_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/world_map.geojson'
     clustered_data_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/clustered_production_data.csv'
     
-    # Load world map
     world = gpd.read_file(world_url)
-    
-    # Load clustered data
     clustered_df = pd.read_csv(clustered_data_url)
     
     return world, clustered_df
 
 def create_interactive_map(world, clustered_df):
     """Create interactive map with Folium and color countries by cluster"""
-    # Filter Southeast Asian countries
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
                      'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
     world['is_sea'] = world['NAME'].isin(sea_countries)
@@ -42,6 +37,10 @@ def create_interactive_map(world, clustered_df):
     # Add fullscreen control
     Fullscreen().add_to(m)
 
+    # Define production thresholds for high and low production
+    high_production_threshold = sea_map['total_production'].quantile(0.75)  # top 25% of total production
+    low_production_threshold = sea_map['total_production'].quantile(0.25)   # bottom 25% of total production
+
     # Add countries to map
     for _, row in sea_map.iterrows():
         # Countries with cluster are colored, others are default map color (no fill)
@@ -60,13 +59,29 @@ def create_interactive_map(world, clustered_df):
         folium.GeoJson(
             data=row['geometry'].__geo_interface__,
             style_function=lambda feature, color=color: {
-                "fillColor": color if color != "none" else "white",  # Fill white for no cluster
+                "fillColor": color if color != "none" else "white",  
                 "color": "black",
                 "weight": 0.5,
-                "fillOpacity": 0.7 if color != "none" else 0.1,  # Transparent for no cluster
+                "fillOpacity": 0.7 if color != "none" else 0.1,
             },
             tooltip=tooltip_text,
         ).add_to(m)
+
+        # Add marker for high production countries
+        if row['total_production'] >= high_production_threshold:
+            folium.Marker(
+                location=[row['geometry'].centroid.y, row['geometry'].centroid.x], 
+                popup=f"<b>{row['NAME']}</b><br>High Production",
+                icon=folium.Icon(color='green', icon='info-sign')
+            ).add_to(m)
+
+        # Add marker for low production countries
+        elif row['total_production'] <= low_production_threshold:
+            folium.Marker(
+                location=[row['geometry'].centroid.y, row['geometry'].centroid.x], 
+                popup=f"<b>{row['NAME']}</b><br>Low Production",
+                icon=folium.Icon(color='red', icon='info-sign')
+            ).add_to(m)
     
     # Add color map legend
     m.add_child(cluster_colormap)
@@ -77,7 +92,6 @@ def main():
     st.set_page_config(layout="wide")  # Set Streamlit layout to wide
     st.title('Southeast Asia Production Clustering Map')
 
-    # Load data
     try:
         world, clustered_df = load_data()
         
