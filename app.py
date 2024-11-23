@@ -56,7 +56,24 @@ def create_interactive_map(world, clustered_df):
             tooltip=tooltip_text,
         ).add_to(m)
     
-    m.add_child(cluster_colormap)
+    # Add text legend in the map
+    legend_html = '''
+     <div style="
+         position: fixed;
+         bottom: 50px; left: 50px; width: 300px; height: 120px; 
+         background-color: white; z-index:9999; font-size:14px; border:2px solid black; 
+         padding: 10px; box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+         ">
+         <b>Legenda Produksi:</b><br>
+         <i>Negara dengan Produksi Tinggi:</i> Indonesia, Vietnam<br>
+         <i>Negara dengan Produksi Rendah:</i> Laos, Brunei<br>
+         <b>Warna:</b><br>
+         <span style="background-color: #2c7bb6; width: 20px; height: 20px; display: inline-block;"></span> Cluster 1<br>
+         <span style="background-color: #abd9e9; width: 20px; height: 20px; display: inline-block;"></span> Cluster 2<br>
+         <span style="background-color: #fdae61; width: 20px; height: 20px; display: inline-block;"></span> Cluster 3<br>
+     </div>
+    '''
+    m.get_root().html.add_child(folium.Element(legend_html))
 
     return m
 
@@ -67,22 +84,6 @@ def main():
     try:
         world, clustered_df = load_data()
 
-        # Display high and low production countries
-        st.subheader("Keterangan Produksi")
-        high_production = clustered_df.nlargest(3, 'total_production')
-        low_production = clustered_df.nsmallest(3, 'total_production')
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("### Negara dengan Produksi Tertinggi")
-            for _, row in high_production.iterrows():
-                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,} ton")
-        with col2:
-            st.markdown("### Negara dengan Produksi Terendah")
-            for _, row in low_production.iterrows():
-                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,} ton")
-
-        # Create and display the map
         m = create_interactive_map(world, clustered_df)
         from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)
