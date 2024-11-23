@@ -67,24 +67,21 @@ def create_interactive_map(world, clustered_df):
             tooltip=tooltip_text,
         ).add_to(m)
 
-        # Add marker for high production countries
-        if row['total_production'] >= high_production_threshold:
-            folium.Marker(
-                location=[row['geometry'].centroid.y, row['geometry'].centroid.x], 
-                popup=f"<b>{row['NAME']}</b><br>High Production",
-                icon=folium.Icon(color='green', icon='info-sign')
-            ).add_to(m)
-
-        # Add marker for low production countries
-        elif row['total_production'] <= low_production_threshold:
-            folium.Marker(
-                location=[row['geometry'].centroid.y, row['geometry'].centroid.x], 
-                popup=f"<b>{row['NAME']}</b><br>Low Production",
-                icon=folium.Icon(color='red', icon='info-sign')
-            ).add_to(m)
-    
     # Add color map legend
     m.add_child(cluster_colormap)
+
+    # Add custom legend for high and low production in the corner
+    legend_html = """
+    <div style="position: fixed; 
+                bottom: 50px; left: 50px; width: 200px; height: 100px;
+                background-color: white; z-index:9999; border:2px solid grey; 
+                padding: 10px; font-size:14px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);">
+        <b>Production Levels</b><br>
+        <i style="background-color: green; padding: 5px;"></i> High Production<br>
+        <i style="background-color: red; padding: 5px;"></i> Low Production
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
 
     return m
 
