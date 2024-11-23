@@ -28,7 +28,7 @@ def create_interactive_map(world, clustered_df):
     sea_map = world.copy()
 
     # Merge clustering data with map
-    sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
+    sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate', 'avg_annual_production']],
                             left_on='NAME', right_on='Entity', how='left')
     
     # Define color map for clusters
@@ -52,9 +52,10 @@ def create_interactive_map(world, clustered_df):
         )
         tooltip_text = (
             f"<b>{row['NAME']}</b><br>"
-            f"Cluster: {row['Cluster'] if not pd.isna(row['Cluster']) else 'N/A'}<br>"
-            f"Total Production: {row['total_production'] if not pd.isna(row['total_production']) else 'N/A'}<br>"
-            f"Growth Rate: {row['growth_rate']:.2f}%<br>"
+            f"Cluster: {int(row['Cluster']) if not pd.isna(row['Cluster']) else 'N/A'}<br>"
+            f"Total Production: {f'{row['total_production']:,}' if not pd.isna(row['total_production']) else 'N/A'}<br>"
+            f"Avg Annual Production: {f'{row['avg_annual_production']:,}' if not pd.isna(row['avg_annual_production']) else 'N/A'}<br>"
+            f"Growth Rate: {f'{row['growth_rate']:.2f}%' if not pd.isna(row['growth_rate']) else 'N/A'}<br>"
         )
         folium.GeoJson(
             data=row['geometry'].__geo_interface__,
