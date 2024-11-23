@@ -71,6 +71,30 @@ def create_interactive_map(world, clustered_df):
     # Add color map legend
     m.add_child(cluster_colormap)
 
+    # Sort data for high and low production
+    high_production = clustered_df.nlargest(3, 'total_production')[['Entity', 'total_production']]
+    low_production = clustered_df.nsmallest(3, 'total_production')[['Entity', 'total_production']]
+
+    # Add custom legend to the map
+    legend_html = f"""
+    <div style="
+        position: fixed; 
+        bottom: 10px; left: 10px; width: 250px; height: auto; 
+        z-index:9999; font-size:14px; background-color:white; 
+        border:2px solid black; padding: 10px;">
+    <h4 style="margin-bottom: 10px;">Legenda Produksi</h4>
+    <strong>Negara dengan Produksi Tertinggi:</strong>
+    <ul style="margin: 5px 0; padding-left: 15px;">
+        {''.join([f"<li>{row['Entity']}: {int(row['total_production']):,}</li>" for _, row in high_production.iterrows()])}
+    </ul>
+    <strong>Negara dengan Produksi Terendah:</strong>
+    <ul style="margin: 5px 0; padding-left: 15px;">
+        {''.join([f"<li>{row['Entity']}: {int(row['total_production']):,}</li>" for _, row in low_production.iterrows()])}
+    </ul>
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
     return m
 
 def main():
@@ -81,29 +105,12 @@ def main():
     try:
         world, clustered_df = load_data()
         
-        # Sort data for high and low production
-        high_production = clustered_df.nlargest(3, 'total_production')[['Entity', 'total_production']]
-        low_production = clustered_df.nsmallest(3, 'total_production')[['Entity', 'total_production']]
-        
         # Create map
         m = create_interactive_map(world, clustered_df)
         
         # Display map in Streamlit
         from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)  # Set large map size
-        
-        # Add production legend
-        st.subheader("Legenda Produksi")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("### Negara dengan Produksi Tertinggi")
-            for _, row in high_production.iterrows():
-                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,}")
-        
-        with col2:
-            st.markdown("### Negara dengan Produksi Terendah")
-            for _, row in low_production.iterrows():
-                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,}")
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
