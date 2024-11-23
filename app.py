@@ -31,9 +31,9 @@ def create_interactive_map(world, clustered_df):
     sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
                             left_on='NAME', right_on='Entity', how='left')
     
-    # Define color map for clusters
+    # Define brighter color map for clusters
     clusters = sea_map['Cluster'].dropna().unique()
-    cluster_colormap = linear.Spectral_11.scale(min(clusters), max(clusters))
+    cluster_colormap = linear.YlGnBu_09.scale(min(clusters), max(clusters))  # Adjust colormap to brighter one
     cluster_colormap.caption = "Cluster Color Map"
 
     # Initialize Folium map
