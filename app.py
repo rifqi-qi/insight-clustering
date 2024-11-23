@@ -1,13 +1,17 @@
 import streamlit as st
-import geopandas as gpd
 import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib_scalebar.scalebar import ScaleBar
+from adjustText import adjust_text
+from PIL import Image, ImageOps
+import numpy as np
+import tensorflow as tf
 import folium
 from branca.colormap import linear
 from folium.plugins import Fullscreen
 from streamlit_folium import st_folium
-from PIL import Image, ImageOps
-import numpy as np
-import tensorflow as tf
 
 # Fungsi untuk memproses gambar pada klasifikasi
 def preprocess_image(image, target_size=(224, 224)):
@@ -64,24 +68,20 @@ def klasifikasi_2():
         st.success(f"🎉 **Prediksi:** {predicted_label}")
         st.info(f"**Probabilitas:** {probability:.2f}%")
 
-# Fungsi untuk memuat data peta
+# Fungsi untuk memuat data Clustering
 def load_data():
-    """Load data from GitHub URLs"""
     world_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/world_map.geojson'
     clustered_data_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/clustered_production_data.csv'
-    
     world = gpd.read_file(world_url)
     clustered_df = pd.read_csv(clustered_data_url)
     return world, clustered_df
 
-# Fungsi untuk membuat peta interaktif
+# Fungsi untuk membuat peta interaktif dengan Folium
 def create_interactive_map(world, clustered_df):
-    """Create interactive map with Folium and color countries by cluster"""
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
                      'Singapore', 'Brunei', 'Cambodia', 'Laos', 'Myanmar']
     world['is_sea'] = world['NAME'].isin(sea_countries)
     sea_map = world.copy()
-
     sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate', 'avg_annual_production']],
                             left_on='NAME', right_on='Entity', how='left')
     
@@ -90,7 +90,6 @@ def create_interactive_map(world, clustered_df):
     cluster_colormap.caption = "Cluster Color Map"
 
     m = folium.Map(location=[5, 115], zoom_start=4, tiles="CartoDB positron", control_scale=True)
-
     Fullscreen().add_to(m)
 
     for _, row in sea_map.iterrows():
@@ -117,30 +116,11 @@ def create_interactive_map(world, clustered_df):
             tooltip=tooltip_text,
         ).add_to(m)
     
-    # Add text legend in the map
-    legend_html = '''
-     <div style="
-         position: fixed;
-         bottom: 50px; left: 50px; width: 300px; height: 120px; 
-         background-color: white; z-index:9999; font-size:14px; border:2px solid black; 
-         padding: 10px; box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
-         ">
-         <b>Legenda Produksi:</b><br>
-         <i>Negara dengan Produksi Tinggi:</i> Indonesia, Vietnam<br>
-         <i>Negara dengan Produksi Rendah:</i> Laos, Brunei<br>
-         <b>Warna:</b><br>
-         <span style="background-color: #2c7bb6; width: 20px; height: 20px; display: inline-block;"></span> Cluster 1<br>
-         <span style="background-color: #abd9e9; width: 20px; height: 20px; display: inline-block;"></span> Cluster 2<br>
-         <span style="background-color: #fdae61; width: 20px; height: 20px; display: inline-block;"></span> Cluster 3<br>
-     </div>
-    '''
-    m.get_root().html.add_child(folium.Element(legend_html))
-
     return m
 
-# Fungsi Peta Interaktif
-def peta_interaktif():
-    st.title('🌏 Peta Interaktif Produksi Perikanan Asia Tenggara')
+# Fungsi untuk menampilkan peta interaktif
+def interactive_map():
+    st.title('Peta Interaktif Produksi Perikanan Asia Tenggara')
     try:
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
@@ -156,13 +136,15 @@ model2 = tf.keras.models.load_model('dana.h5')
 # Navigasi utama
 def main():
     st.sidebar.title("Navigasi")
-    option = st.sidebar.radio("Pilih Halaman:", ["Peta Interaktif", "Klasifikasi 1", "Klasifikasi 2"])
-    if option == "Peta Interaktif":
-        peta_interaktif()
+    option = st.sidebar.radio("Pilih Halaman:", ["Clustering", "Klasifikasi 1", "Klasifikasi 2", "Peta Interaktif"])
+    if option == "Clustering":
+        clustering()
     elif option == "Klasifikasi 1":
         klasifikasi_1()
     elif option == "Klasifikasi 2":
         klasifikasi_2()
+    elif option == "Peta Interaktif":
+        interactive_map()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
