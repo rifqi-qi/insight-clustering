@@ -43,7 +43,6 @@ def create_interactive_map(world, clustered_df):
 
     # Add countries to map
     for _, row in sea_map.iterrows():
-        # Countries with cluster are colored, others are default map color (no fill)
         color = (
             cluster_colormap(row['Cluster']) 
             if not pd.isna(row['Cluster']) 
@@ -73,7 +72,7 @@ def create_interactive_map(world, clustered_df):
     # Add custom legend for high and low production in the corner
     legend_html = """
     <div style="position: fixed; 
-                bottom: 50px; left: 50px; width: 200px; height: 100px;
+                bottom: 50px; left: 50px; width: 230px; height: 110px;
                 background-color: white; z-index:9999; border:2px solid grey; 
                 padding: 10px; font-size:14px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);">
         <b>Production Levels</b><br>
