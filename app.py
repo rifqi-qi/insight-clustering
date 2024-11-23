@@ -81,12 +81,29 @@ def main():
     try:
         world, clustered_df = load_data()
         
+        # Sort data for high and low production
+        high_production = clustered_df.nlargest(3, 'total_production')[['Entity', 'total_production']]
+        low_production = clustered_df.nsmallest(3, 'total_production')[['Entity', 'total_production']]
+        
         # Create map
         m = create_interactive_map(world, clustered_df)
         
         # Display map in Streamlit
         from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)  # Set large map size
+        
+        # Add production legend
+        st.subheader("Legenda Produksi")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Negara dengan Produksi Tertinggi")
+            for _, row in high_production.iterrows():
+                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,}")
+        
+        with col2:
+            st.markdown("### Negara dengan Produksi Terendah")
+            for _, row in low_production.iterrows():
+                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,}")
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
