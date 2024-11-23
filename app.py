@@ -86,15 +86,6 @@ def main():
     st.set_page_config(layout="wide")  # Set Streamlit layout to wide
     st.title('Southeast Asia Production Clustering Map')
 
-    # Sidebar for selected country details
-    with st.sidebar:
-        st.header("Country Details")
-        selected_country = st.empty()
-        selected_cluster = st.empty()
-        selected_total_production = st.empty()
-        selected_avg_production = st.empty()
-        selected_growth_rate = st.empty()
-
     # Load data
     try:
         world, clustered_df = load_data()
@@ -104,25 +95,26 @@ def main():
         
         # Display map in Streamlit
         from streamlit_folium import st_folium
-        output = st_folium(m, width=1500, height=800)  # Set large map size
+        output = st_folium(m, width=1500, height=600)  # Set large map size
         
-        # Extract clicked data
+        # Display country details below the map
+        st.subheader("Country Details")
         if output["last_active_drawing"]:
             country_name = output["last_active_drawing"]["properties"]["NAME"]
             country_data = clustered_df[clustered_df['Entity'] == country_name]
             
             if not country_data.empty:
-                selected_country.text(f"Country: {country_name}")
-                selected_cluster.text(f"Cluster: {country_data['Cluster'].values[0]}")
-                selected_total_production.text(f"Total Production: {int(country_data['total_production'].values[0]):,}")
-                selected_avg_production.text(f"Avg Annual Production: {int(country_data['avg_annual_production'].values[0]):,}")
-                selected_growth_rate.text(f"Growth Rate: {country_data['growth_rate'].values[0]:.2f}%")
+                st.markdown(f"**Country:** {country_name}")
+                st.markdown(f"**Cluster:** {int(country_data['Cluster'].values[0])}")
+                st.markdown(f"**Total Production:** {int(country_data['total_production'].values[0]):,}")
+                st.markdown(f"**Avg Annual Production:** {int(country_data['avg_annual_production'].values[0]):,}")
+                st.markdown(f"**Growth Rate:** {country_data['growth_rate'].values[0]:.2f}%")
             else:
-                selected_country.text(f"Country: {country_name}")
-                selected_cluster.text("Cluster: N/A")
-                selected_total_production.text("Total Production: N/A")
-                selected_avg_production.text("Avg Annual Production: N/A")
-                selected_growth_rate.text("Growth Rate: N/A")
+                st.markdown(f"**Country:** {country_name}")
+                st.markdown("**Cluster:** N/A")
+                st.markdown("**Total Production:** N/A")
+                st.markdown("**Avg Annual Production:** N/A")
+                st.markdown("**Growth Rate:** N/A")
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
