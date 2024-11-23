@@ -53,7 +53,7 @@ def create_interactive_map(world, clustered_df):
             f"Growth Rate: {row['growth_rate']:.2f}%<br>"
         )
         folium.GeoJson(
-            data=row['geometry']._geo_interface_,
+            data=row['geometry'].__geo_interface__,
             style_function=lambda feature, color=color: {
                 "fillColor": color,
                 "color": "black",
@@ -86,5 +86,5 @@ def main():
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     main()
