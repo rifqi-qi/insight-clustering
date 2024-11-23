@@ -65,7 +65,7 @@ def create_interactive_map(world, clustered_df):
     # Add custom legend for high/low production
     legend_html = f"""
     <div style="
-        position: fixed; 
+        position: absolute; 
         top: 10px; left: 10px; width: 300px; height: auto; 
         z-index:9999; font-size:14px; background-color:white; 
         border:2px solid black; padding: 10px;">
@@ -80,6 +80,7 @@ def create_interactive_map(world, clustered_df):
     </ul>
     </div>
     """
+    # Add legend directly to Folium's map HTML
     m.get_root().html.add_child(folium.Element(legend_html))
 
     return m
