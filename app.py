@@ -58,31 +58,6 @@ def create_interactive_map(world, clustered_df):
     
     m.add_child(cluster_colormap)
 
-    # Calculate high and low production countries
-    high_production = clustered_df.nlargest(3, 'total_production')
-    low_production = clustered_df.nsmallest(3, 'total_production')
-
-    # Add custom legend for high/low production
-    legend_html = f"""
-    <div style="
-        position: absolute; 
-        top: 10px; left: 10px; width: 300px; height: auto; 
-        z-index:9999; font-size:14px; background-color:white; 
-        border:2px solid black; padding: 10px;">
-    <h4 style="margin-bottom: 10px;">Keterangan Produksi</h4>
-    <strong>Negara dengan Produksi Tertinggi:</strong>
-    <ul style="margin: 5px 0; padding-left: 15px;">
-        {''.join([f"<li>{row['Entity']}: {int(row['total_production']):,}</li>" for _, row in high_production.iterrows()])}
-    </ul>
-    <strong>Negara dengan Produksi Terendah:</strong>
-    <ul style="margin: 5px 0; padding-left: 15px;">
-        {''.join([f"<li>{row['Entity']}: {int(row['total_production']):,}</li>" for _, row in low_production.iterrows()])}
-    </ul>
-    </div>
-    """
-    # Add legend directly to Folium's map HTML
-    m.get_root().html.add_child(folium.Element(legend_html))
-
     return m
 
 def main():
@@ -91,10 +66,27 @@ def main():
 
     try:
         world, clustered_df = load_data()
+
+        # Display high and low production countries
+        st.subheader("Keterangan Produksi")
+        high_production = clustered_df.nlargest(3, 'total_production')
+        low_production = clustered_df.nsmallest(3, 'total_production')
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Negara dengan Produksi Tertinggi")
+            for _, row in high_production.iterrows():
+                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,} ton")
+        with col2:
+            st.markdown("### Negara dengan Produksi Terendah")
+            for _, row in low_production.iterrows():
+                st.write(f"- **{row['Entity']}**: {int(row['total_production']):,} ton")
+
+        # Create and display the map
         m = create_interactive_map(world, clustered_df)
         from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)
-        
+
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
