@@ -9,3 +9,11 @@ pyproj
 shapely
 folium
 streamlit-folium
+
+streamlit
+pandas
+numpy
+tensorflow
+seaborn
+pillow
+keras
