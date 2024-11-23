@@ -3,6 +3,7 @@ import geopandas as gpd
 import pandas as pd
 import folium
 from branca.colormap import linear
+from folium.plugins import Fullscreen
 
 def load_data():
     """Load data from GitHub URLs"""
@@ -36,7 +37,10 @@ def create_interactive_map(world, clustered_df):
     cluster_colormap.caption = "Cluster Color Map"
 
     # Initialize Folium map
-    m = folium.Map(location=[5, 115], zoom_start=4, tiles="CartoDB positron")
+    m = folium.Map(location=[5, 115], zoom_start=4, tiles="CartoDB positron", control_scale=True)
+
+    # Add fullscreen control
+    Fullscreen().add_to(m)
 
     # Add countries to map
     for _, row in sea_map.iterrows():
@@ -69,6 +73,7 @@ def create_interactive_map(world, clustered_df):
     return m
 
 def main():
+    st.set_page_config(layout="wide")  # Set Streamlit layout to wide
     st.title('Southeast Asia Production Clustering Map')
 
     # Load data
@@ -80,7 +85,7 @@ def main():
         
         # Display map in Streamlit
         from streamlit_folium import st_folium
-        st_folium(m, width=800, height=600)
+        st_folium(m, width=1500, height=800)  # Set large map size
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
