@@ -3,7 +3,6 @@ import geopandas as gpd
 import pandas as pd
 import folium
 from branca.colormap import linear
-from folium.plugins import MarkerCluster
 
 def load_data():
     """Load data from GitHub URLs"""
@@ -41,10 +40,11 @@ def create_interactive_map(world, clustered_df):
 
     # Add countries to map
     for _, row in sea_map.iterrows():
+        # Countries with cluster are colored, others are default map color (no fill)
         color = (
             cluster_colormap(row['Cluster']) 
             if not pd.isna(row['Cluster']) 
-            else "lightgray"
+            else "none"
         )
         tooltip_text = (
             f"<b>{row['NAME']}</b><br>"
@@ -55,10 +55,10 @@ def create_interactive_map(world, clustered_df):
         folium.GeoJson(
             data=row['geometry'].__geo_interface__,
             style_function=lambda feature, color=color: {
-                "fillColor": color,
+                "fillColor": color if color != "none" else "white",  # Fill white for no cluster
                 "color": "black",
                 "weight": 0.5,
-                "fillOpacity": 0.7 if not pd.isna(row['Cluster']) else 0.2,
+                "fillOpacity": 0.7 if color != "none" else 0.1,  # Transparent for no cluster
             },
             tooltip=tooltip_text,
         ).add_to(m)
