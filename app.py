@@ -55,7 +55,7 @@ def create_interactive_map(world, clustered_df):
             f"Cluster: {int(row['Cluster']) if not pd.isna(row['Cluster']) else 'N/A'}<br>"
             f"Total Production: {f'{int(row['total_production']):,}' if not pd.isna(row['total_production']) else 'N/A'}<br>"
             f"Avg Annual Production: {f'{int(row['avg_annual_production']):,}' if not pd.isna(row['avg_annual_production']) else 'N/A'}<br>"
-            f"Growth Rate: {f'{int(row['growth_rate'])}%' if not pd.isna(row['growth_rate']) else 'N/A'}<br>"
+            f"Growth Rate: {f'{row['growth_rate']:.2f}%' if not pd.isna(row['growth_rate']) else 'N/A'}<br>"
         )
         folium.GeoJson(
             data=row['geometry'].__geo_interface__,
