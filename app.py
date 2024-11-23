@@ -4,7 +4,9 @@ import pandas as pd
 import folium
 from branca.colormap import linear
 from folium.plugins import Fullscreen
+from streamlit_folium import st_folium
 
+# Fungsi untuk memuat data
 def load_data():
     """Load data from GitHub URLs"""
     world_url = 'https://raw.githubusercontent.com/rifqi-qi/insight-clustering/refs/heads/main/world_map.geojson'
@@ -14,6 +16,7 @@ def load_data():
     clustered_df = pd.read_csv(clustered_data_url)
     return world, clustered_df
 
+# Fungsi untuk membuat peta interaktif
 def create_interactive_map(world, clustered_df):
     """Create interactive map with Folium and color countries by cluster"""
     sea_countries = ['Indonesia', 'Malaysia', 'Thailand', 'Vietnam', 'Philippines',
@@ -77,6 +80,7 @@ def create_interactive_map(world, clustered_df):
 
     return m
 
+# Fungsi utama
 def main():
     st.set_page_config(layout="wide")  # Set Streamlit layout to wide
     st.title('Southeast Asia Production Clustering Map')
@@ -85,7 +89,6 @@ def main():
         world, clustered_df = load_data()
 
         m = create_interactive_map(world, clustered_df)
-        from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)
 
     except Exception as e:
