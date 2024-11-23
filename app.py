@@ -31,9 +31,9 @@ def create_interactive_map(world, clustered_df):
     sea_map = sea_map.merge(clustered_df[['Entity', 'Cluster', 'total_production', 'growth_rate']],
                             left_on='NAME', right_on='Entity', how='left')
     
-    # Define brighter color map for clusters
+    # Define color map for clusters
     clusters = sea_map['Cluster'].dropna().unique()
-    cluster_colormap = linear.YlGnBu_09.scale(min(clusters), max(clusters))  # Adjust colormap to brighter one
+    cluster_colormap = linear.Spectral_11.scale(min(clusters), max(clusters))
     cluster_colormap.caption = "Cluster Color Map"
 
     # Initialize Folium map
@@ -53,7 +53,7 @@ def create_interactive_map(world, clustered_df):
             f"Growth Rate: {row['growth_rate']:.2f}%<br>"
         )
         folium.GeoJson(
-            data=row['geometry'].__geo_interface__,
+            data=row['geometry']._geo_interface_,
             style_function=lambda feature, color=color: {
                 "fillColor": color,
                 "color": "black",
@@ -86,5 +86,5 @@ def main():
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     main()
