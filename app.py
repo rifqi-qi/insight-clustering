@@ -98,11 +98,11 @@ def main():
         
         # Add production levels legend
         legend_html = add_production_legend()
-        m.get_root().html.add_child(folium.Element(legend_html))
         
-        # Display map in Streamlit
+        # Display map with legend in Streamlit
         from streamlit_folium import st_folium
         st_folium(m, width=1500, height=800)  # Set large map size
+        st.markdown(legend_html, unsafe_allow_html=True)  # Display legend beside map
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
