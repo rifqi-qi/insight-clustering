@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 # Set konfigurasi halaman Streamlit
-st.set_page_config(layout="wide")  # Pastikan ini berada di awal kode
+st.set_page_config(layout="wide")  
 
 # Fungsi untuk memuat data
 def load_data():
@@ -69,22 +69,6 @@ def create_interactive_map(world, clustered_df):
 # Fungsi Clustering
 def clustering():
     st.title('Southeast Asia Production Clustering Map')
-
-    # Atur gaya dengan CSS untuk menghilangkan margin dan padding
-    st.markdown("""
-        <style>
-            .css-18e3th9 {
-                padding-top: 0rem;
-                padding-right: 0rem;
-                padding-left: 0rem;
-                padding-bottom: 0rem;
-            }
-            .css-1d391kg {
-                padding: 0;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
     try:
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
