@@ -65,7 +65,7 @@ def create_interactive_map(world, clustered_df):
 
 # Fungsi Clustering
 def clustering():
-    st.set_page_config(layout="wide") 
+    st.set_page_config(layout="centered") 
     st.title('Southeast Asia Production Clustering Map')
     try:
         world, clustered_df = load_data()
