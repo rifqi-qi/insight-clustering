@@ -89,8 +89,6 @@ def clustering():
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
 
-        # Tampilkan peta dengan lebar penuh
-        st_folium(m, width=0, height=700)
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
