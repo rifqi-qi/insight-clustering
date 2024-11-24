@@ -66,6 +66,39 @@ def create_interactive_map(world, clustered_df):
     # Add color map legend
     m.add_child(cluster_colormap)
 
+    # Add legend for clusters
+    legend_html = f"""
+    <div style="
+        position: fixed;
+        bottom: 50px;
+        left: 50px;
+        width: 300px;
+        background-color: white;
+        border:2px solid grey;
+        z-index:9999;
+        font-size:14px;
+        padding: 10px;">
+        <b>Legenda Produksi:</b><br>
+        <b>Cluster 0 (Produksi Tinggi):</b><br>
+        <ul>
+    """
+    for _, row in clustered_df[clustered_df['Cluster'] == 0].iterrows():
+        legend_html += f"<li>{row['Entity']}: {row['total_production']:,} ton</li>"
+    
+    legend_html += """
+        </ul>
+        <b>Cluster 1 (Produksi Rendah):</b><br>
+        <ul>
+    """
+    for _, row in clustered_df[clustered_df['Cluster'] == 1].iterrows():
+        legend_html += f"<li>{row['Entity']}: {row['total_production']:,} ton</li>"
+    
+    legend_html += """
+        </ul>
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
     return m
 
 def main():
@@ -74,20 +107,6 @@ def main():
     # Load data
     try:
         world, clustered_df = load_data()
-        
-        # Filter berdasarkan cluster
-        high_cluster_countries = clustered_df[clustered_df['Cluster'] == 0][['Entity', 'total_production']]
-        low_cluster_countries = clustered_df[clustered_df['Cluster'] == 1][['Entity', 'total_production']]
-        
-        # Menampilkan informasi di atas peta
-        st.subheader("Informasi Negara Berdasarkan Cluster")
-        st.markdown("### Negara dengan Produksi Tinggi (Cluster 0):")
-        for _, row in high_cluster_countries.iterrows():
-            st.write(f"- {row['Entity']}: {row['total_production']:,} ton")
-        
-        st.markdown("### Negara dengan Produksi Rendah (Cluster 1):")
-        for _, row in low_cluster_countries.iterrows():
-            st.write(f"- {row['Entity']}: {row['total_production']:,} ton")
         
         # Create map
         m = create_interactive_map(world, clustered_df)
