@@ -74,20 +74,16 @@ def main():
     # Use custom CSS to remove padding and make the map full width
     st.markdown("""
         <style>
-            .streamlit-expanderHeader {
-                font-size: 20px;
+            .block-container {
+                padding: 0 !important;
+            }
+            .streamlit-folium {
+                width: 100% !important;
+                height: 100vh !important;
             }
             .main {
                 padding-left: 0;
                 padding-right: 0;
-            }
-            .block-container {
-                padding-left: 0;
-                padding-right: 0;
-            }
-            .streamlit-folium {
-                width: 100%;
-                height: 100vh;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -101,7 +97,7 @@ def main():
         
         # Display map in Streamlit with full width and height
         from streamlit_folium import st_folium
-        st_folium(m, width=800, height=600)
+        st_folium(m, width="100%", height=800)  # Full width, fixed height
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
