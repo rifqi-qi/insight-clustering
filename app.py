@@ -9,7 +9,8 @@ from PIL import Image, ImageOps
 import numpy as np
 import tensorflow as tf
 
-st.set_page_config(layout="wide") 
+# Set konfigurasi halaman Streamlit
+st.set_page_config(layout="wide")  # Pastikan ini berada di awal kode
 
 # Fungsi untuk memuat data
 def load_data():
@@ -83,84 +84,23 @@ def clustering():
             }
         </style>
     """, unsafe_allow_html=True)
-    
+
     try:
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
-        st_folium(m, width=1500, height=800)
+
+        # Tampilkan peta dengan lebar penuh
+        st_folium(m, width=0, height=700)
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
 
-# Fungsi preprocessing gambar
-def preprocess_image(image, target_size=(224, 224)):
-    image = image.convert("RGB")
-    image = ImageOps.fit(image, target_size, Image.Resampling.LANCZOS)
-    image = np.asarray(image, dtype=np.float32)
-    image = image / 255.0
-    image = np.expand_dims(image, axis=0)
-    return image
-
-# Fungsi Klasifikasi 1
-def klasifikasi_1():
-    st.title("🖼️ Klasifikasi 1: Spesies Ikan")
-    st.markdown("""
-    **Klasifikasi Gambar Spesies Ikan**
-    - **Label 1:** Amphiprion clarkii
-    - **Label 2:** Chaetodon lunulatus
-    - **Label 3:** Chaetodon trifascialis
-    """)
-    uploaded_file = st.file_uploader("Upload gambar ikan (jpg, jpeg, png):", type=["jpg", "jpeg", "png"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Gambar yang diunggah", use_column_width=True)
-        st.warning("⏳ Memproses gambar...")
-        processed_image = preprocess_image(image)
-        prediction = model1.predict(processed_image)
-        class_index = np.argmax(prediction)
-        labels = ["Label 1 (Amphiprion clarkii)", "Label 2 (Chaetodon lunulatus)", "Label 3 (Chaetodon trifascialis)"]
-        predicted_label = labels[class_index]
-        probability = prediction[0][class_index] * 100
-        st.success(f"🎉 **Prediksi:** {predicted_label}")
-        st.info(f"**Probabilitas:** {probability:.2f}%")
-
-# Fungsi Klasifikasi 2
-def klasifikasi_2():
-    st.title("🖼️ Klasifikasi 2: Spesies Ikan")
-    st.markdown("""
-    **Klasifikasi Gambar Spesies Ikan**
-    - **Label 1:** Chromis Chrysura
-    - **Label 2:** Dascyllus Reticulatus
-    - **Label 3:** Plectroglyphidodon Dickii
-    """)
-    uploaded_file = st.file_uploader("Upload gambar ikan (jpg, jpeg, png):", type=["jpg", "jpeg", "png"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Gambar yang diunggah", use_column_width=True)
-        st.warning("⏳ Memproses gambar...")
-        processed_image = preprocess_image(image)
-        prediction = model2.predict(processed_image)
-        class_index = np.argmax(prediction)
-        labels = ["Label 1 (Chromis Chrysura)", "Label 2 (Dascyllus Reticulatus)", "Label 3 (Plectroglyphidodon Dickii)"]
-        predicted_label = labels[class_index]
-        probability = prediction[0][class_index] * 100
-        st.success(f"🎉 **Prediksi:** {predicted_label}")
-        st.info(f"**Probabilitas:** {probability:.2f}%")
-
-# Model untuk klasifikasi
-model1 = tf.keras.models.load_model('akbar.h5')
-model2 = tf.keras.models.load_model('dana.h5')
-
-# Navigasi utama
+# Fungsi Navigasi Utama
 def main():
     st.sidebar.title("Navigasi")
-    option = st.sidebar.radio("Pilih Halaman:", ["Clustering", "Klasifikasi 1", "Klasifikasi 2"])
+    option = st.sidebar.radio("Pilih Halaman:", ["Clustering"])
     if option == "Clustering":
         clustering()
-    elif option == "Klasifikasi 1":
-        klasifikasi_1()
-    elif option == "Klasifikasi 2":
-        klasifikasi_2()
 
 if __name__ == '__main__':
     main()
