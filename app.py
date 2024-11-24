@@ -75,19 +75,19 @@ def main():
     try:
         world, clustered_df = load_data()
         
-        # Menentukan negara dengan produksi tinggi dan rendah
-        top_countries = clustered_df.nlargest(5, 'total_production')[['Entity', 'total_production']]
-        low_countries = clustered_df.nsmallest(5, 'total_production')[['Entity', 'total_production']]
+        # Filter berdasarkan cluster
+        high_cluster_countries = clustered_df[clustered_df['Cluster'] == 0][['Entity', 'total_production']]
+        low_cluster_countries = clustered_df[clustered_df['Cluster'] == 1][['Entity', 'total_production']]
         
-        # Tampilkan informasi di sidebar
-        st.sidebar.header("Informasi Produksi")
-        st.sidebar.subheader("5 Negara dengan Produksi Tertinggi")
-        for _, row in top_countries.iterrows():
-            st.sidebar.write(f"- {row['Entity']}: {row['total_production']:,} ton")
+        # Menampilkan informasi di atas peta
+        st.subheader("Informasi Negara Berdasarkan Cluster")
+        st.markdown("### Negara dengan Produksi Tinggi (Cluster 0):")
+        for _, row in high_cluster_countries.iterrows():
+            st.write(f"- {row['Entity']}: {row['total_production']:,} ton")
         
-        st.sidebar.subheader("5 Negara dengan Produksi Terendah")
-        for _, row in low_countries.iterrows():
-            st.sidebar.write(f"- {row['Entity']}: {row['total_production']:,} ton")
+        st.markdown("### Negara dengan Produksi Rendah (Cluster 1):")
+        for _, row in low_cluster_countries.iterrows():
+            st.write(f"- {row['Entity']}: {row['total_production']:,} ton")
         
         # Create map
         m = create_interactive_map(world, clustered_df)
