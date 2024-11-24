@@ -62,12 +62,11 @@ def create_interactive_map(world, clustered_df):
 
     m.add_child(cluster_colormap)
 
-    # Enhanced legend HTML
     legend_html = """
     <div style="
         position: fixed; 
         bottom: 50px; left: 50px; 
-        z-index: 100000; 
+        z-index: 9999; 
         background: linear-gradient(to right, #ffffff, #eeeeee); 
         padding: 15px; 
         border-radius: 10px;
@@ -78,6 +77,7 @@ def create_interactive_map(world, clustered_df):
         <b style="color: #2C7BB6;">Cluster 0 (Produksi Tinggi):</b>
         <ul style="list-style-type: none; padding-left: 10px;">
     """
+    
     for _, row in clustered_df[clustered_df['Cluster'] == 0].iterrows():
         legend_html += f"<li style='margin-bottom: 5px;'>🌟 {row['Entity']}: {row['total_production']:,} ton</li>"
     
@@ -93,8 +93,10 @@ def create_interactive_map(world, clustered_df):
         </ul>
     </div>
     """
-    # Pastikan elemen HTML ditambahkan ke map dengan benar
-    m.get_root().html.add_child(folium.Element(legend_html))
+    
+    # Setelah peta dibentuk, baru tambahkan legend HTML
+    folium.Element(legend_html).add_to(m)
+
     return m
 
 # Fungsi Clustering
