@@ -4,6 +4,8 @@ import pandas as pd
 import folium
 from branca.colormap import linear
 
+st.set_page_config(layout="wide")
+
 def load_data():
     """Load data from GitHub URLs"""
     # Replace with your actual GitHub raw file URLs
