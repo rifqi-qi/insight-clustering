@@ -67,7 +67,7 @@ def create_interactive_map(world, clustered_df):
     <div style="
         position: fixed; 
         bottom: 50px; left: 50px; 
-        z-index: 9999; 
+        z-index: 100000; 
         background: linear-gradient(to right, #ffffff, #eeeeee); 
         padding: 15px; 
         border-radius: 10px;
