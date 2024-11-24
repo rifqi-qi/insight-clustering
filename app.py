@@ -69,7 +69,7 @@ def clustering():
     try:
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
-        st_folium(m, width=1500, height=800)
+        st_folium(m, width=1500, height=1800)
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
