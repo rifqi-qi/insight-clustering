@@ -71,6 +71,27 @@ def create_interactive_map(world, clustered_df):
 def main():
     st.title('Southeast Asia Production Clustering Map')
 
+    # Use custom CSS to remove padding and make the map full width
+    st.markdown("""
+        <style>
+            .streamlit-expanderHeader {
+                font-size: 20px;
+            }
+            .main {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .block-container {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .streamlit-folium {
+                width: 100%;
+                height: 100vh;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     # Load data
     try:
         world, clustered_df = load_data()
@@ -78,7 +99,7 @@ def main():
         # Create map
         m = create_interactive_map(world, clustered_df)
         
-        # Display map in Streamlit
+        # Display map in Streamlit with full width and height
         from streamlit_folium import st_folium
         st_folium(m, width=800, height=600)
         
