@@ -63,16 +63,35 @@ def create_interactive_map(world, clustered_df):
     m.add_child(cluster_colormap)
     return m
 
-# Fungsi Clustering
 def clustering():
+    st.set_page_config(layout="wide")  # Pastikan halaman menggunakan layout lebar penuh
     st.title('Southeast Asia Production Clustering Map')
+
+    # Atur gaya dengan CSS untuk menghilangkan margin dan padding
+    st.markdown("""
+        <style>
+            .css-18e3th9 {
+                padding-top: 0rem;
+                padding-right: 0rem;
+                padding-left: 0rem;
+                padding-bottom: 0rem;
+            }
+            .css-1d391kg {
+                padding: 0;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     try:
         world, clustered_df = load_data()
         m = create_interactive_map(world, clustered_df)
-        st_folium(m, width=1500, height=800)
+
+        # Tampilkan peta dengan lebar penuh
+        st_folium(m, width=0, height=700)
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("Please check the GitHub URLs and ensure files are accessible")
+
 
 # Fungsi preprocessing gambar
 def preprocess_image(image, target_size=(224, 224)):
