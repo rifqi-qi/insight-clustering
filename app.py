@@ -9,6 +9,8 @@ from PIL import Image, ImageOps
 import numpy as np
 import tensorflow as tf
 
+st.set_page_config(layout="wide") 
+
 # Fungsi untuk memuat data
 def load_data():
     """Load data dari GitHub URLs"""
@@ -65,7 +67,6 @@ def create_interactive_map(world, clustered_df):
 
 # Fungsi Clustering
 def clustering():
-    st.set_page_config(layout="wide") 
     st.title('Southeast Asia Production Clustering Map')
 
     # Atur gaya dengan CSS untuk menghilangkan margin dan padding
